@@ -1,6 +1,6 @@
 #'''author : 子糖'''
 # 脚本功能:检查指定路径下的upgrade_history.log文件
-# 以及官网的最新版本进行更新
+# 以及从cdn.jsdelivr.net获取的最新版本进行更新
 # 需要使用的库:time os sys requests
 
 
@@ -27,6 +27,16 @@ def getLatestVersion():
 
 
 def newVersionAvailable(direct):
+    def getCurrentVersion():
+        try:
+            with open(f"{direct}/upgrade_history.log", "r") as f:
+                return list(
+                    map(int, f.read().split("\n")[-2].split(" ")[-1].split("."))
+                )
+        except:
+            if Auto:return [0,0,0,0]
+            return inputCurrentVersion()
+
     def inputCurrentVersion():
         while True:
             rqst = 'UnKnown Version!use "." split enter the version:\n'
@@ -45,17 +55,8 @@ def newVersionAvailable(direct):
             )
         return cur_version
 
-    def getCurrentVersion():
-        try:
-            with open(f"{direct}/upgrade_history.log", "r") as f:
-                return list(
-                    map(int, f.read().split("\n")[-2].split(" ")[-1].split("."))
-                )
-        except:
-            return inputCurrentVersion()
-
     global new_version, current_version
-    new_version = list(map(int, latest_version.split(".")[:-1]))
+    new_version = list(map(int, latest_version.split(".")))
     current_version = getCurrentVersion()
     return new_version > current_version
 
@@ -79,7 +80,7 @@ def upgradeVersion(direct, screen):
         f.write(f'{int(time())} {strftime("%F %T")} upgradeComplete! {old} ==> {new}\n')
 
 
-from os import system
+from os import system,getcwd
 from sys import argv, exit
 from time import time, strftime
 
@@ -95,8 +96,8 @@ file_NOT_REQUIRED = [
     "bedrock_server_how_to.html",
     "release-notes.txt",
 ]
-direct = "/opt/llm_minecraft"
-screen = "llm-BDS"
+direct = getcwd()
+screen = "mcBDS"
 Auto = False
 
 if len(argv) != 1:
@@ -104,7 +105,7 @@ if len(argv) != 1:
         [exec(sentence) for sentence in argv[1:]]
     except:
         raise Exception(
-            'illegal input , Usage:\n screen="[screenName]" , direct="[directPath]" , Auto=[True/False]'
+            'invalid parameter, Usage: screen="[screenName]" , direct="[directPath]"'
         )
 elif not userConfirm(f"Use Default Setting? screen = {screen} direct = {direct}"):
     exit(0)
