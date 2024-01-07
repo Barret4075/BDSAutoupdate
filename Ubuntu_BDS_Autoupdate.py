@@ -18,9 +18,12 @@ def userConfirm(sen):
         return True
     while True:
         s = input(sen + "[y/N]?")
-        if s == "y":return True
-        elif s == "N":return False
-        else:print("please input y or N")
+        if s == "y":
+            return True
+        elif s == "N":
+            return False
+        else:
+            print("please input y or N")
 
 
 def getCurrentURL():
@@ -47,16 +50,23 @@ def newVersionAvailable(url, direct):
             rqst = 'UnKnown Version!use "." split enter the version:\n'
             try:
                 cur_version = list(map(int, input(rqst).split(".")))
-                if userConfirm(cur_version):break
-            except:continue
+                if userConfirm(cur_version):
+                    break
+            except:
+                continue
         with open(f"{direct}/upgrade_history.log", "w") as f:
-            f.write("TimeStamp Date Time Upgrade_Condition Old_Version ==> New_Version\n")
+            f.write(
+                "TimeStamp Date Time Upgrade_Condition Old_Version ==> New_Version\n"
+            )
             f.write(f'Current Version : {".".join([f"{i}" for i in old_version])}\n')
         return cur_version
+
     def getOldVersion():
         try:
             with open(f"{direct}/upgrade_history.log", "r") as f:
-                return list(map(int, f.read().split("\n")[-2].split(" ")[-1].split(".")))
+                return list(
+                    map(int, f.read().split("\n")[-2].split(" ")[-1].split("."))
+                )
         except:
             return inputCurrentVersion()
 
@@ -68,10 +78,16 @@ def newVersionAvailable(url, direct):
 
 def upgradeVersion(url, direct, screen):
     zip_file = "/".join([direct, url.split("/")[-1]])
-    if system(f"wget -c -P {direct} {url}") != 0:errorException(2)
+    if system(f"wget -c -P {direct} {url}") != 0:
+        errorException(2)
     system(f"screen -x -S {screen} -p 0 -X stuff" + R' "stop\r"')
-    if (system(f"unzip -o {zip_file} -d {direct}/ -x {' '.join(file_NOT_REQUIRED)}")!= 0):errorException(3)
-    if system(f"chmod +x {direct}/bedrock_server") != 0:errorException(1)
+    if (
+        system(f"unzip -o {zip_file} -d {direct}/ -x {' '.join(file_NOT_REQUIRED)}")
+        != 0
+    ):
+        errorException(3)
+    if system(f"chmod +x {direct}/bedrock_server") != 0:
+        errorException(1)
     system(f"screen -x -S {screen} -p 0 -X stuff " + R'"./start\r"')
     new = ".".join([f"{i}" for i in new_version])
     old = ".".join([f"{i}" for i in old_version])
@@ -88,22 +104,32 @@ def errorException(n=1):
     elif n == 3:
         print("Decompression not completed")
     elif n == 5:
-        print('illegal input , Usage:\n screen="[screenName]" , direct="[directPath]" , Auto=[True/False]')
+        print(
+            'illegal input , Usage:\n screen="[screenName]" , direct="[directPath]" , Auto=[True/False]'
+        )
     exit(n)
 
 
 from os import system
-from sys import argv,exit
+from sys import argv, exit
 from time import time, strftime
 
-file_NOT_REQUIRED=['server.properties', 'permissions.json', 'allowlist.json', 'bedrock_server_how_to.html','release-notes.txt']
+file_NOT_REQUIRED = [
+    "server.properties",
+    "permissions.json",
+    "allowlist.json",
+    "bedrock_server_how_to.html",
+    "release-notes.txt",
+]
 direct = "/opt/llm_minecraft"
 screen = "llm-BDS"
 Auto = False
 
 if len(argv) != 1:
-    try:[exec(sentence) for sentence in argv[1:]]
-    except:errorException(5)
+    try:
+        [exec(sentence) for sentence in argv[1:]]
+    except:
+        errorException(5)
 elif not userConfirm(f"Use Default Setting? screen = {screen} direct = {direct}"):
     exit(0)
 
@@ -111,13 +137,18 @@ print(f"{strftime('%F %T')} Script Started")
 
 url = getCurrentURL()
 if newVersionAvailable(url, direct):
-    print('New Version Available!')
+    print("New Version Available!")
     upgradeVersion(url, direct, screen)
-    print('upgrade success!')
-else:print("already the latest version")
+    print("upgrade success!")
+else:
+    print("already the latest version")
 if userConfirm("Start Automatic Updates?"):
-    system('echo "'+f"{argv[0]} Auto=True screen='{screen}' direct='{direct}'" + '" | at now +1 days')
-    
+    system(
+        'echo "'
+        + f"{argv[0]} Auto=True screen='{screen}' direct='{direct}'"
+        + '" | at now +1 days'
+    )
+
 print(f"{strftime('%F %T')} Script Finished")
 
 exit(0)
