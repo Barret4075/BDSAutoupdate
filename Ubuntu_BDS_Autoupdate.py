@@ -34,26 +34,12 @@ def newVersionAvailable(direct):
                     map(int, f.read().split("\n")[-2].split(" ")[-1].split("."))
                 )
         except:
-            if Auto:return [0,0,0,0]
-            return inputCurrentVersion()
-
-    def inputCurrentVersion():
-        while True:
-            rqst = 'UnKnown Version!use "." split enter the version:\n'
-            try:
-                cur_version = list(map(int, input(rqst).split(".")))
-                if userConfirm(cur_version):
-                    break
-            except:
-                continue
-        with open(f"{direct}/upgrade_history.log", "w") as f:
-            f.write(
-                "TimeStamp Date Time Upgrade_Condition Old_Version ==> New_Version\n"
-            )
-            f.write(
-                f'Current Version : {".".join([f"{i}" for i in current_version])}\n'
-            )
-        return cur_version
+            with open(f"{direct}/upgrade_history.log", "w") as f:
+                f.write(
+                    "TimeStamp Date Time Upgrade_Condition Old_Version ==> New_Version\n"
+                )
+                f.write(f'Current Version : 0.0.0.0\n')
+        return [0,0,0,0]
 
     global new_version, current_version
     new_version = list(map(int, latest_version.split(".")))
@@ -100,26 +86,26 @@ direct = getcwd()
 screen = "mcBDS"
 Auto = False
 
-if len(argv) != 1:
-    try:
-        [exec(sentence) for sentence in argv[1:]]
-    except:
-        raise Exception(
-            'invalid parameter, Usage: screen="[screenName]" , direct="[directPath]"'
-        )
-elif not userConfirm(f"Use Default Setting? screen = {screen} direct = {direct}"):
+try:
+    [exec(sentence) for sentence in argv[1:]]
+except:
+    raise Exception(
+        'Invalid Parameter, Usage: screen="[screenName]" , direct="[directPath]"'
+    )
+if not userConfirm(f"Use Current Setting? screen = {screen} direct = {direct}"):
     exit(0)
 
 print(f"{strftime('%F %T')} Script Started")
+print(f"Upgrade BDS in screen = {screen} direct = {direct}")
 
 if newVersionAvailable(direct):
     print("New Version Available!")
     upgradeVersion(direct, screen)
-    print("upgrade success!")
+    print("Upgrade Success!")
 else:
-    print("already the latest version")
+    print("Already the latest version")
 
-if userConfirm("Start Automatic Updates?"):
+if userConfirm("Enable Automatic Updates?"):
     system(
         'echo "'
         + f"{argv[0]} Auto=True screen='{screen}' direct='{direct}'"
